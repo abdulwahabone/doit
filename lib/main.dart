@@ -1,63 +1,38 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
-void main() {
-  runApp(MyApp());
+import 'package:doit/provider/LoginProvider.dart';
+import 'package:doit/provider/dashboardProvider.dart';
+import 'package:doit/theme/customTheme.dart';
+import 'package:doit/utils/sharedPrefs.dart';
+import 'package:doit/screens/dashboard.dart';
+import 'package:doit/screens/login.dart';
+
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await SharedPrefs().init();
+  runApp(
+    MyApp(),
+  );
 }
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(title: 'Flutter Demo Home Page'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
-  final String title;
-
-  @override
-  _MyHomePageState createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
-
-  void _incrementCounter() {
-    setState(() {
-      _counter++;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-          ],
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: LoginProvider()),
+        ChangeNotifierProvider.value(value: DashboardProvider()),
+      ],
+      child: Consumer<LoginProvider>(
+        builder: (ctx, setupProvider, _) => MaterialApp(
+          theme: CustomTheme.lightTheme,
+          home: setupProvider.isUserAuthenticated ? Dashboard() : Login(),
+          routes: {
+            '/dashboard': (ctx) => Dashboard(),
+            '/login': (ctx) => Login(),
+          },
         ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
       ),
     );
   }
