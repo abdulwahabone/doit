@@ -1,5 +1,11 @@
-import 'package:doit/common/lottie/loginHeaderImage.dart';
+import 'package:doit/common/buttons/roundedButton.dart';
+import 'package:doit/common/snackBar/appSnackBar.dart';
+import 'package:doit/provider/LoginProvider.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+import 'package:doit/common/fields/InputField.dart';
+import 'package:doit/common/lottie/loginHeaderImage.dart';
 
 class Login extends StatefulWidget {
   Login({Key? key}) : super(key: key);
@@ -9,6 +15,21 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  final GlobalKey<FormState> _formKey = GlobalKey();
+  TextEditingController emailController = new TextEditingController();
+  TextEditingController passwordController = new TextEditingController();
+
+  Future<void> _submit() async {
+    bool validate = _formKey.currentState!.validate();
+    if (validate) {
+      await Provider.of<LoginProvider>(context, listen: false)
+          .signIn(emailController.text, passwordController.text)
+          .catchError(
+            (e) => AppSnackBar().showSnackBar(context, e),
+          );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -24,13 +45,41 @@ class _LoginState extends State<Login> {
                   ? constraints.maxWidth * 0.9
                   : _buttonMaxWidth * 0.9;
 
-              return Column(
-                children: [
-                  Padding(
-                    padding: EdgeInsets.only(top: _topPadding),
-                    child: LoginHeaderImager(),
-                  ),
-                ],
+              return SingleChildScrollView(
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: EdgeInsets.only(top: _topPadding),
+                      child: LoginHeaderImager(),
+                    ),
+                    Form(
+                      key: _formKey,
+                      child: Column(
+                        children: [
+                          InputField(
+                            hintText: 'Your Email',
+                            controller: emailController,
+                            icon: Icons.person,
+                            isEmail: true,
+                          ),
+                          InputField(
+                            hintText: 'Your Password',
+                            isPasswordField: true,
+                            controller: passwordController,
+                            icon: Icons.lock,
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.only(top: 20),
+                      child: RoundedButton(
+                        text: 'LOGIN',
+                        onPressed: () => _submit(),
+                      ),
+                    ),
+                  ],
+                ),
               );
             },
           ),
