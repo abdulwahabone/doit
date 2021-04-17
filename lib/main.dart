@@ -25,9 +25,9 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: DashboardProvider()),
       ],
       child: Consumer<LoginProvider>(
-        builder: (ctx, setupProvider, _) => MaterialApp(
+        builder: (ctx, loginProvider, _) => MaterialApp(
           theme: CustomTheme.lightTheme,
-          home: setupProvider.isUserAuthenticated ? Dashboard() : Login(),
+          home: loginProvider.isUserAuthenticated ? Dashboard() : Login(),
           routes: {
             '/dashboard': (ctx) => Dashboard(),
             '/login': (ctx) => Login(),
