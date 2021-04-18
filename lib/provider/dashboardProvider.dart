@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -14,7 +15,9 @@ class DashboardProvider extends ChangeNotifier {
   final loginProvider;
   String userName = '';
   List<TaskModel> userTasksList = List<TaskModel>.empty(growable: true);
-  Map<String, String> headers = {'Content-Type': 'application/json'};
+  Map<String, String> headers = {
+    'Content-Type': 'application/json; charset=UTF-8'
+  };
 
   List<TaskModel> parseTasks(String responseBody) {
     final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
@@ -71,6 +74,32 @@ class DashboardProvider extends ChangeNotifier {
     Uri url = Uri.parse(baseUrl + '/todos/$taskId');
     try {
       await http.delete(url);
+    } catch (e) {
+      Future.error(e.toString());
+    }
+  }
+
+  Future<void> createTask(String title) async {
+    // Using a random number to prevent duplicate Ids, since Api success always returns id: 201
+    Random random = new Random();
+    int randomNumber = random.nextInt(1000);
+    userTasksList.insert(
+        0, TaskModel(id: randomNumber, title: title, completed: false));
+    notifyListeners();
+  }
+
+  Future<void> postCreatedTask(String title) async {
+    var userId = loginProvider.userToken;
+    Uri url = Uri.parse(baseUrl + '/todos');
+    try {
+      var payload = json.encode({
+        'title': title,
+        'completed': false,
+        'userId': userId,
+      });
+      var response = await http.post(url, headers: headers, body: payload);
+      final responseData = json.decode(response.body);
+      if (responseData.isEmpty) return Future.error(unableToFetchUserDetails);
     } catch (e) {
       Future.error(e.toString());
     }
