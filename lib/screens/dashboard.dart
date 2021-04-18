@@ -17,11 +17,7 @@ class _DashboardState extends State<Dashboard> {
           minimum: const EdgeInsets.all(16.0),
           child: LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
-              const double _buttonMaxWidth = 400.0;
               final _topPadding = constraints.maxHeight * 0.05;
-              final _buttonWidth = constraints.maxWidth < _buttonMaxWidth
-                  ? constraints.maxWidth * 0.9
-                  : _buttonMaxWidth * 0.9;
 
               return Column(
                 children: [
