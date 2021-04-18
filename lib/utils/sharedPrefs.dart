@@ -16,6 +16,10 @@ class SharedPrefs {
     _sharedPrefs?.setInt(keyAuthToken, authToken);
   }
 
+  Future<void> clear() async {
+    _sharedPrefs?.clear();
+  }
+
   int? get authToken => _authToken;
 
   bool get isUserAuthenticated => _authToken != null;
