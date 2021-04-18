@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:rflutter_alert/rflutter_alert.dart';
 
 import 'package:doit/common/buttons/logoutButton.dart';
 import 'package:doit/common/snackBar/appSnackBar.dart';
@@ -7,6 +8,7 @@ import 'package:doit/common/text/heading.dart';
 import 'package:doit/common/buttons/customFloatingActionButton.dart';
 import 'package:doit/common/text/subHeading.dart';
 import 'package:doit/common/list/listItem.dart';
+import 'package:doit/common/fields/InputField.dart';
 import 'package:doit/provider/LoginProvider.dart';
 import 'package:doit/provider/dashboardProvider.dart';
 
@@ -18,6 +20,8 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  final GlobalKey<FormState> _formKey = GlobalKey();
+  TextEditingController newTaskController = new TextEditingController();
   String? username;
 
   @override
@@ -32,6 +36,20 @@ class _DashboardState extends State<Dashboard> {
     dashboardProvider.fetchUserDetails();
   }
 
+// Seperating api call function and update list, since api response delay.
+  Future<void> _createTask() async {
+    bool validate = _formKey.currentState!.validate();
+    var dashboardProvider =
+        Provider.of<DashboardProvider>(context, listen: false);
+    if (validate) {
+      await dashboardProvider
+          .createTask(newTaskController.text)
+          .whenComplete(() => Navigator.pop(context))
+          .catchError((e) => AppSnackBar().showSnackBar(context, e));
+      await dashboardProvider.postCreatedTask(newTaskController.text);
+    }
+  }
+
   Future<void> _logout() async {
     await Provider.of<LoginProvider>(context, listen: false)
         .logout()
@@ -40,11 +58,35 @@ class _DashboardState extends State<Dashboard> {
         );
   }
 
+  _openCreateTaskModal() {
+    newTaskController.clear();
+    Alert(
+        context: context,
+        title: "Create task",
+        content: Form(
+            key: _formKey,
+            child: InputField(
+              hintText: 'New Task',
+              controller: newTaskController,
+              icon: Icons.notes,
+            )),
+        buttons: [
+          DialogButton(
+            onPressed: () => _createTask(),
+            child: Text(
+              "Create",
+              style: TextStyle(color: Colors.white, fontSize: 20),
+            ),
+            radius: BorderRadius.all(Radius.circular(20)),
+          )
+        ]).show();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       floatingActionButton: CustomFloatingActionButton(
-        onPressed: () => print('FAB pressed'),
+        onPressed: () => _openCreateTaskModal(),
       ),
       body: Align(
         alignment: Alignment.topCenter,
