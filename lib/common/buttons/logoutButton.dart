@@ -9,7 +9,7 @@ class LogoutButton extends StatelessWidget {
   const LogoutButton({
     Key? key,
     required this.onPressed,
-    this.color = CustomColors.accentColor,
+    this.color = CustomColors.greyIconColor,
   }) : super(key: key);
 
   @override
@@ -20,7 +20,7 @@ class LogoutButton extends StatelessWidget {
         child: Icon(
           Icons.logout,
           size: 40,
-          color: CustomColors.accentColor,
+          color: color,
         ),
         onTap: () => onPressed(),
       ),
