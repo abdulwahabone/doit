@@ -17,11 +17,23 @@ class LoginProvider extends ChangeNotifier {
     try {
       var response = await http.get(url);
       final responseData = json.decode(response.body) as List;
-      if (responseData.isEmpty) return Future.error(inValidCredentialsErrorMessage);
+      if (responseData.isEmpty)
+        return Future.error(inValidCredentialsErrorMessage);
       int userId = responseData[0]['id'];
       userToken = userId;
       isUserAuthenticated = true;
       SharedPrefs().setAuthToken(userId);
+      notifyListeners();
+    } catch (e) {
+      Future.error(e.toString());
+    }
+  }
+
+  Future<void> logout() async {
+    try {
+      isUserAuthenticated = false;
+      userToken = null;
+      SharedPrefs().clear();
       notifyListeners();
     } catch (e) {
       Future.error(e.toString());
