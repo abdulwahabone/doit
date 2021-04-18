@@ -70,7 +70,7 @@ class _LoginState extends State<Login> {
                     Padding(
                       padding: EdgeInsets.only(top: 20),
                       child: RoundedButton(
-                        text: 'LOGIN',
+                        text: 'Login',
                         onPressed: () => _submit(),
                       ),
                     ),

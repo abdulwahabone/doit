@@ -22,7 +22,11 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(value: LoginProvider()),
-        ChangeNotifierProvider.value(value: DashboardProvider()),
+        ChangeNotifierProxyProvider<LoginProvider, DashboardProvider>(
+          create: (_) => DashboardProvider(),
+          update: (_, loginProvider, myNotifier) =>
+              DashboardProvider(loginProvider: loginProvider),
+        ),
       ],
       child: Consumer<LoginProvider>(
         builder: (ctx, loginProvider, _) => MaterialApp(

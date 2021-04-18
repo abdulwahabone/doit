@@ -3,7 +3,11 @@ import 'package:provider/provider.dart';
 
 import 'package:doit/common/buttons/logoutButton.dart';
 import 'package:doit/common/snackBar/appSnackBar.dart';
+import 'package:doit/common/text/heading.dart';
+import 'package:doit/common/buttons/customFloatingActionButton.dart';
+import 'package:doit/common/text/subHeading.dart';
 import 'package:doit/provider/LoginProvider.dart';
+import 'package:doit/provider/dashboardProvider.dart';
 
 class Dashboard extends StatefulWidget {
   Dashboard({Key? key}) : super(key: key);
@@ -13,6 +17,22 @@ class Dashboard extends StatefulWidget {
 }
 
 class _DashboardState extends State<Dashboard> {
+  String? username;
+
+  @override
+  void initState() {
+    _fetchUserDetails();
+    super.initState();
+  }
+
+  _fetchUserDetails() async {
+    var dashboardProvider =
+        Provider.of<DashboardProvider>(context, listen: false);
+    dashboardProvider.fetchUserDetails().whenComplete(() {
+      setState(() => username = dashboardProvider.userName!);
+    });
+  }
+
   Future<void> _logout() async {
     await Provider.of<LoginProvider>(context, listen: false)
         .logout()
@@ -24,22 +44,33 @@ class _DashboardState extends State<Dashboard> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: CustomFloatingActionButton(
+        onPressed: () => print('FAB pressed'),
+      ),
       body: Align(
         alignment: Alignment.topCenter,
         child: SafeArea(
           minimum: const EdgeInsets.all(16.0),
           child: LayoutBuilder(
             builder: (BuildContext context, BoxConstraints constraints) {
-              final _topPadding = constraints.maxHeight * 0.05;
-
               return Column(
                 children: [
                   LogoutButton(
                     onPressed: () => _logout(),
                   ),
                   Padding(
-                    padding: EdgeInsets.only(top: _topPadding),
-                    child: Text('THIS IS DASHBAORD'),
+                    padding: EdgeInsets.only(top: 30),
+                    child: Consumer<DashboardProvider>(
+                      builder: (ctx, user, _) => Heading(
+                        text: 'What\'s up, $username!',
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(top: 30),
+                    child: SubHeading(
+                      text: 'Today\'s tasks',
+                    ),
                   ),
                 ],
               );
